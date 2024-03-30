@@ -21,6 +21,7 @@ const ManageRole = () =>
 
     const [editRoleBoxShow, setEditRoleBoxShow] = useState(false);
     const [permissionBox, setPermissionBox] = useState({ show: false, data: [] });
+    const [loader,setLoader] = useState(true);
 
     useEffect(() =>
     {
@@ -31,6 +32,7 @@ const ManageRole = () =>
             {
                 setRoleDetails(res?.data)
             }
+            setLoader(false)
         })
 
     }, [])
@@ -202,6 +204,7 @@ const ManageRole = () =>
                                 data={ roleDetails }
                                 defaultSortField="title"
                                 pagination
+                                progressPending={loader}
                                 selectableRows={ false }
                                 className="table myDataTable table-hover align-middle mb-0 d-row nowrap dataTable no-footer dtr-inline"
                                 highlightOnHover={ true }

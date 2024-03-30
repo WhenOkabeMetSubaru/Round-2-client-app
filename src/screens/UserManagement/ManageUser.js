@@ -14,20 +14,21 @@ const ManageUser = () =>
 
   const [userDetails, setUserDetails] = useState([]);
 
-  const {refreshUserData}  = UserAuthFinal()
+  const { refreshUserData } = UserAuthFinal()
 
 
   const [roleAddInput, setRoleAddInput] = useState({ name: "", selected: [] })
   const [userEditInput, setUserEditInput] = useState({ roleId: "", name: "", selected: [] })
   const [userRoleAssignBox, setUserRoleAssignBox] = useState({ show: false, userData: [], roleData: [] })
 
-  const [addRoleBoxShow, setAddRoleBoxShow] = useState(false);
 
+  const [loader, setLoader] = useState(true);
   const [editUserBoxShow, setEditUserBoxShow] = useState(false);
   const [permissionBox, setPermissionBox] = useState({ show: false, data: [] });
 
   useEffect(() =>
   {
+
 
     getAllRolesByAdmin({ token: auth?.isAuthenticated() }).then((res) =>
     {
@@ -46,34 +47,15 @@ const ManageUser = () =>
         setUserDetails(res?.data)
 
       }
-
+      setLoader(false);
     })
+
 
   }, [])
 
-  const handleRoleDelete = async (id) =>
-  {
 
-    let flag = window.confirm("Are you sure you want to delete the role");
 
-    if (flag)
-    {
-      let res = await deleteRoleByIDAdmin(id);
-
-      if (res.status == false)
-      {
-        alert(res.info);
-        getAllRolesByAdmin({ token: auth?.isAuthenticated() }).then((res) =>
-        {
-          if (res.status == false)
-          {
-            setRoleDetails(res?.data)
-          }
-        })
-
-      }
-    }
-  }
+ 
 
   const UserColumnData = {
     columns: [
@@ -95,7 +77,7 @@ const ManageUser = () =>
       },
       {
         name: "Roles",
-        selector: user => < p > { user?.roles?.length}</p>,
+        selector: user => < p > { user?.roles?.length }</p>,
 
       },
       {
@@ -103,13 +85,13 @@ const ManageUser = () =>
         selector: (user) => { },
         cell: (user) =>
         {
-          
+
           return (
             <div className="btn-group" role="group" aria-label="Basic outlined example">
 
-              {/* <button title="Edit" onClick={ () => { } } type="button" className="btn btn-outline-secondary"><i className="icofont-edit text-success"></i></button> */}
+              {/* <button title="Edit" onClick={ () => { } } type="button" className="btn btn-outline-secondary"><i className="icofont-edit text-success"></i></button> */ }
               {/* <button onClick={ () => handleRoleDelete(role?._id) } title="Delete Role" type="button" className="btn btn-outline-secondary deleterow"><i className="icofont-ui-delete text-danger"></i></button> */ }
-              <button title="Update Role" onClick={ () => { setUserRoleAssignBox({ ...userRoleAssignBox, show: true,userData:user }) } } type="button" className="btn btn-outline-secondary "><i className="icofont-users-alt-2 text-danger"></i></button>
+              <button title="Update Role" onClick={ () => { setUserRoleAssignBox({ ...userRoleAssignBox, show: true, userData: user }) } } type="button" className="btn btn-outline-secondary "><i className="icofont-users-alt-2 text-danger"></i></button>
             </div>
           )
         }
@@ -117,15 +99,17 @@ const ManageUser = () =>
     ]
   }
 
- 
 
-  const checkIfRoleAlreadyExists = (userRoles,role)=>{
 
-    let isExists = userRoles?.find((item)=>{
-      return item?._id===role
+  const checkIfRoleAlreadyExists = (userRoles, role) =>
+  {
+
+    let isExists = userRoles?.find((item) =>
+    {
+      return item?._id === role
     })
-   
-    return isExists?true:false;
+
+    return isExists ? true : false;
   }
 
   const handleEditRoleSubmit = async () =>
@@ -156,7 +140,7 @@ const ManageUser = () =>
 
   return (
     <section>
-     <p style={{fontSize:'large'}}>Manage Users</p>
+      <p style={ { fontSize: 'large' } }>Manage Users</p>
       <div className="row clearfix g-3">
         <div className="col-md-12">
           <div className="card">
@@ -167,6 +151,7 @@ const ManageUser = () =>
                 data={ userDetails }
                 defaultSortField="title"
                 pagination
+                progressPending={ loader }
                 selectableRows={ false }
                 className="table myDataTable table-hover align-middle mb-0 d-row nowrap dataTable no-footer dtr-inline"
                 highlightOnHover={ true }
@@ -183,47 +168,50 @@ const ManageUser = () =>
         </Modal.Header>
         <Modal.Body>
           <div>
-            <div style={ { minHeight: 100,display:'flex',gap:10, flexWrap:'wrap', border: '1px solid lightgray',padding:5, borderRadius: '2px' } }>
-               {
-                userRoleAssignBox?.userData?.roles?.map((role,i)=>{
+            <div style={ { minHeight: 100, display: 'flex', gap: 10, flexWrap: 'wrap', border: '1px solid lightgray', padding: 5, borderRadius: '2px' } }>
+              {
+                userRoleAssignBox?.userData?.roles?.map((role, i) =>
+                {
                   return (
-                    <div key={i + "roleUser"} style={ { padding: "0px 20px 0px 20px", border: '1px solid gray', cursor: 'pointer', height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '5px' } }>
-                      {role?.name}
+                    <div key={ i + "roleUser" } style={ { padding: "0px 20px 0px 20px", border: '1px solid gray', cursor: 'pointer', height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '5px' } }>
+                      { role?.name }
                     </div>
                   )
                 })
-               }
+              }
             </div>
-            <div style={ { height: 300, overflow: "hidden", display:'flex',flexDirection:'column',rowGap:10, marginTop: 20, padding: 2 } }>
+            <div style={ { height: 300, overflow: "hidden", display: 'flex', flexDirection: 'column', rowGap: 10, marginTop: 20, padding: 2 } }>
               {
                 roleDetails?.map((item) =>
                 {
                   return (
-                    <RoleAssignComponent cb={()=>{
+                    <RoleAssignComponent cb={ () =>
+                    {
                       getAllUsersByAdmin({ token: auth?.isAuthenticated() }).then((res) =>
                       {
 
                         if (res.status == false)
                         {
                           let userId = userRoleAssignBox?.userData?._id;
-                          let tempData = res?.data?.find((item)=>{
-                            return item?._id ==userId
+                          let tempData = res?.data?.find((item) =>
+                          {
+                            return item?._id == userId
                           })
-                          
-                          setUserRoleAssignBox({...userRoleAssignBox,userData:tempData})
+
+                          setUserRoleAssignBox({ ...userRoleAssignBox, userData: tempData })
                           setUserDetails(res?.data)
                           refreshUserData()
                         }
 
                       })
-                    }} key={item?._id} item={item} checkIfRoleAlreadyExists={checkIfRoleAlreadyExists} userRoleAssignBox={userRoleAssignBox}/>
+                    } } key={ item?._id } item={ item } checkIfRoleAlreadyExists={ checkIfRoleAlreadyExists } userRoleAssignBox={ userRoleAssignBox } />
                   )
                 })
               }
             </div>
           </div>
         </Modal.Body>
-       
+
       </Modal>
 
 
@@ -284,11 +272,13 @@ const ManageUser = () =>
 
 export default ManageUser
 
-export const RoleAssignComponent = ({item,userRoleAssignBox,checkIfRoleAlreadyExists,cb})=>{
+export const RoleAssignComponent = ({ item, userRoleAssignBox, checkIfRoleAlreadyExists, cb }) =>
+{
 
   const [assignState, SetAssignState] = useState(checkIfRoleAlreadyExists(userRoleAssignBox?.userData?.roles, item?._id) || false);
 
-  useEffect(()=>{
+  useEffect(() =>
+  {
 
     let flag = checkIfRoleAlreadyExists(userRoleAssignBox?.userData?.roles, item?._id);
     SetAssignState(flag);
@@ -296,24 +286,28 @@ export const RoleAssignComponent = ({item,userRoleAssignBox,checkIfRoleAlreadyEx
 
   }, [checkIfRoleAlreadyExists(userRoleAssignBox?.userData?.roles, item?._id)])
 
-  const handleAddRoleAssign = async ()=>{
+  const handleAddRoleAssign = async () =>
+  {
 
 
-    let res = await addNewRoleToUser(item?._id,userRoleAssignBox?.userData?._id);
+    let res = await addNewRoleToUser(item?._id, userRoleAssignBox?.userData?._id);
 
-    if(res?.status==false){
+    if (res?.status == false)
+    {
       SetAssignState(true)
       cb()
     }
-  
+
 
   }
 
-  const handleUpdateRoleAssign = async ()=>{
+  const handleUpdateRoleAssign = async () =>
+  {
 
-    let res = await deleteUserRole(item?._id,userRoleAssignBox?.userData?._id);
+    let res = await deleteUserRole(item?._id, userRoleAssignBox?.userData?._id);
 
-    if(res?.status==false){
+    if (res?.status == false)
+    {
       SetAssignState(!assignState);
       cb()
     }
@@ -322,18 +316,18 @@ export const RoleAssignComponent = ({item,userRoleAssignBox,checkIfRoleAlreadyEx
 
 
   return (
-    <div key={ item?._id } onClick={ () => { assignState == true ? handleUpdateRoleAssign():handleAddRoleAssign() } } style={ { display: 'flex', padding: '0px 10px 0px 10px', cursor: 'pointer', borderRadius: '5px', border: '1px solid lightgray', height: 40, justifyContent: 'space-between', alignItems: 'center' } }>
+    <div key={ item?._id } onClick={ () => { assignState == true ? handleUpdateRoleAssign() : handleAddRoleAssign() } } style={ { display: 'flex', padding: '0px 10px 0px 10px', cursor: 'pointer', borderRadius: '5px', border: '1px solid lightgray', height: 40, justifyContent: 'space-between', alignItems: 'center' } }>
       <div style={ { fontWeight: 'bold' } }>
         { item?.name }
       </div>
       <div>
         {
-           assignState==true? <div  style={ { display: 'flex', columnGap: 5, alignItems: 'center' } }>
-            {/* <span style={ { fontSize: 'small' } }>Assigned</span> */}
+          assignState == true ? <div style={ { display: 'flex', columnGap: 5, alignItems: 'center' } }>
+            {/* <span style={ { fontSize: 'small' } }>Assigned</span> */ }
             <i style={ { fontSize: 'x-large', color: "red", fontWeight: 'bold' } } className="icofont-ui-delete"></i>
-          </div> : <div  style={ { display: 'flex', columnGap: 5, alignItems: 'center' } }>
-            {/* <span style={ { fontSize: 'small' } }>Not Assigned</span> */}
-            <i style={ { fontSize: 'large',color:'lightseagreen', fontWeight: 'bold' } } className="icofont-plus"></i>
+          </div> : <div style={ { display: 'flex', columnGap: 5, alignItems: 'center' } }>
+            {/* <span style={ { fontSize: 'small' } }>Not Assigned</span> */ }
+            <i style={ { fontSize: 'large', color: 'lightseagreen', fontWeight: 'bold' } } className="icofont-plus"></i>
           </div>
         }
       </div>
