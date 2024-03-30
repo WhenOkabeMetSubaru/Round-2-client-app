@@ -143,8 +143,8 @@
             "permissions": [
                 "clients-r",
                 "clients-rw",
-                "clientProfile-r",
-                "clientProfile-rw"
+                "clientsProfile-r",
+                "clientsProfile-rw"
             ],
             "children": [
                 {
@@ -165,7 +165,7 @@
                     "name": "Client Profile",
                     "routerLink": ["client-profile"],
                     "identifier": "Client Profile",
-                    "permissions":["clientProfile-r","clientProfile-rw"],
+                    "permissions":["clientsProfile-r","clientsProfile-rw"],
                     "iconClass": "",
                     "breadcrumbMessage": "",
                     "isCategory": false,
