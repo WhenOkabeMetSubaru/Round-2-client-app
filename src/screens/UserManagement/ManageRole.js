@@ -72,7 +72,7 @@ const ManageRole = () =>
             },
             {
                 name: "Permissions",
-                selector: role => <div style={ { display: 'flex', columnGap: 8, alignItems: 'center', height: 60 } }>
+                selector: role => <div style={ { display: 'flex', columnGap: 8, alignItems: 'center', height: 30 } }>
                     {/* {
                         role?.permissions?.map((item,i)=>{
                             return <p>{item}</p>
