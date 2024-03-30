@@ -87,3 +87,44 @@ export const getAllUsersPaginationByAdmin = async ({pageNumber,pageSize}) =>
     }
 }
 
+export const updateUserByID = async (userDetails,userId) =>
+{
+    try
+    {
+        let response = await fetch(`${serverLink}/api/v1/user/${userId}/update`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization":"Bearer " + auth?.isAuthenticated()
+            },
+            body: JSON.stringify(userDetails)
+        })
+
+        return await response.json()
+    } catch (error)
+    {
+        return error.message;
+    }
+}
+
+export const deleteUserByID = async (userId) =>
+{
+    try
+    {
+        let response = await fetch(`${serverLink}/api/v1/user/${userId}/delete`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": "Bearer " + auth?.isAuthenticated()
+            }
+        })
+
+        return await response.json()
+    } catch (error)
+    {
+        return error.message;
+    }
+}
+

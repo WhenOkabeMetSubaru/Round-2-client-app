@@ -4,27 +4,30 @@ import auth from '../../features/auth/auth';
 import { Modal } from "react-bootstrap";
 import DataTable from "react-data-table-component";
 import { MultiSelect } from 'react-multi-select-component'
-import { getAllUsersByAdmin } from '../../features/api/userApi';
+import { deleteUserByID, getAllUsersByAdmin, updateUserByID, userSignup } from '../../features/api/userApi';
 import { UserAuthFinal } from '../../features/providers/userAuthProvider';
 
 const ManageUser = () =>
 {
 
   const [roleDetails, setRoleDetails] = useState([]);
+ 
 
   const [userDetails, setUserDetails] = useState([]);
 
-  const { refreshUserData } = UserAuthFinal()
+  const { refreshUserData,currentUser } = UserAuthFinal()
 
-
-  const [roleAddInput, setRoleAddInput] = useState({ name: "", selected: [] })
   const [userEditInput, setUserEditInput] = useState({ roleId: "", name: "", selected: [] })
-  const [userRoleAssignBox, setUserRoleAssignBox] = useState({ show: false, userData: [], roleData: [] })
+  const [userRoleAssignBox, setUserRoleAssignBox] = useState({ show: false, userData: [], roleData: [] });
+  const [addUserBoxShow, setAddUserBoxShow] = useState(false);
 
 
   const [loader, setLoader] = useState(true);
   const [editUserBoxShow, setEditUserBoxShow] = useState(false);
   const [permissionBox, setPermissionBox] = useState({ show: false, data: [] });
+
+  const [userAddData, setUserAddData] = useState({ first_name: "", last_name: "", mobile: "", email: "", password: "" });
+  const [userEditData, setUserEditData] = useState({_id:"", first_name: "", last_name: "", mobile: "", email: "", password: "" })
 
   useEffect(() =>
   {
@@ -55,7 +58,7 @@ const ManageUser = () =>
 
 
 
- 
+
 
   const UserColumnData = {
     columns: [
@@ -89,8 +92,28 @@ const ManageUser = () =>
           return (
             <div className="btn-group" role="group" aria-label="Basic outlined example">
 
-              {/* <button title="Edit" onClick={ () => { } } type="button" className="btn btn-outline-secondary"><i className="icofont-edit text-success"></i></button> */ }
-              {/* <button onClick={ () => handleRoleDelete(role?._id) } title="Delete Role" type="button" className="btn btn-outline-secondary deleterow"><i className="icofont-ui-delete text-danger"></i></button> */ }
+               <button title="Edit User" onClick={ () => { setUserEditData(user); setEditUserBoxShow(true)} } type="button" className="btn btn-outline-secondary"><i className="icofont-edit text-success"></i></button> 
+               {(currentUser?._id !== user?._id) && <button title={"Delete User"} onClick={ () => {
+                  let flag = window.confirm("Do you want to delete the user");
+                  if(flag){
+                    deleteUserByID(user?._id).then((res)=>{
+                      if(res.status==false){
+                        getAllUsersByAdmin({ token: auth?.isAuthenticated() }).then((res) =>
+                        {
+
+                          if (res.status == false)
+                          {
+
+                            alert(res?.info)
+                          }
+
+                          setLoader(false);
+                        })
+                      }
+                    })
+                  }
+               } }  type="button" className="btn btn-outline-secondary deleterow"><i className="icofont-ui-delete text-danger"></i></button> 
+              }
               <button title="Update Role" onClick={ () => { setUserRoleAssignBox({ ...userRoleAssignBox, show: true, userData: user }) } } type="button" className="btn btn-outline-secondary "><i className="icofont-users-alt-2 text-danger"></i></button>
             </div>
           )
@@ -138,9 +161,82 @@ const ManageUser = () =>
     setEditUserBoxShow(false);
   }
 
+  const handleUserCreateSubmit = async () =>
+  {
+    if (!userAddData?.first_name || !userAddData?.last_name || !userAddData?.email || !userAddData?.mobile)
+    {
+      return alert("Missing Fields")
+    }
+
+    if (userAddData?.password?.length < 4)
+    {
+      return alert("Password must be atleast 4 digits")
+    }
+
+    let response = await userSignup(userAddData);
+
+    if (response.status == false)
+    {
+      getAllUsersByAdmin({ token: auth?.isAuthenticated() }).then((res) =>
+      {
+
+        if (res.status == false)
+        {
+
+          setUserDetails(res?.data)
+          setUserAddData({ first_name: "", last_name: "", mobile: "", email: "", password: "" })
+          setAddUserBoxShow(false);
+        }
+
+        setLoader(false);
+      })
+    }
+
+    alert(response?.info)
+  }
+
+  const handleUserEditSubmit = async () =>
+  {
+    if (!userEditData?.first_name || !userEditData?.last_name || !userEditData?.email || !userEditData?.mobile)
+    {
+      return alert("Missing Fields")
+    }
+
+    // if (userEditData?.password?.length < 4)
+    // {
+    //   return alert("Password must be atleast 4 digits")
+    // }
+
+
+    let response = await updateUserByID(userEditData,userEditData._id)
+
+    if (response.status == false)
+    {
+      getAllUsersByAdmin({ token: auth?.isAuthenticated() }).then((res) =>
+      {
+
+        if (res.status == false)
+        {
+
+          setUserDetails(res?.data)
+          setUserEditData({_id:"", first_name: "", last_name: "", mobile: "", email: "", password: "" })
+          setEditUserBoxShow(false);
+        }
+
+        setLoader(false);
+      })
+    }
+
+    alert(response?.info)
+  }
+
   return (
     <section>
-      <p style={ { fontSize: 'large' } }>Manage Users</p>
+      <div className="" style={ { padding: 5, display: 'flex', justifyContent: "space-between" } }>
+        <p style={ { fontSize: 'large' } }>Manage Users</p>
+        <button type="button" className="btn btn-dark ms-1" onClick={ () => { setAddUserBoxShow(true) } }><i className="icofont-plus-circle me-2 fs-6"></i>Add User</button>
+      </div>
+
       <div className="row clearfix g-3">
         <div className="col-md-12">
           <div className="card">
@@ -214,19 +310,49 @@ const ManageUser = () =>
 
       </Modal>
 
-
-      <Modal show={ editUserBoxShow } centered onHide={ () => { setEditUserBoxShow(false) } }>
+      <Modal show={ addUserBoxShow } centered onHide={ () => { setAddUserBoxShow(false) } }>
         <Modal.Header closeButton>
-          <Modal.Title className="fw-bold">Add New Role</Modal.Title>
+          <Modal.Title className="fw-bold">Add User</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div>
+          <div style={ { padding: 2, display: 'flex', flexDirection: 'column', rowGap: 20 } }>
+            <div style={ { display: 'flex', columnGap: 5 } }>
+              <input required autoComplete={ "off" } type="text" value={ userAddData?.first_name } onChange={ (e) => { setUserAddData({ ...userAddData, first_name: e.target.value }) } } className="form-control" id="exampleFormControlInput1" placeholder="Enter First Name" />
+              <input autoComplete={ "off" } type="text" value={ userAddData?.last_name } onChange={ (e) => { setUserAddData({ ...userAddData, last_name: e.target.value }) } } className="form-control" id="exampleFormControlInput1" placeholder="Enter Last Name" />
+            </div>
+            <input maxLength={ 10 } autoComplete={ "off" } type="text" value={ userAddData?.mobile } onChange={ (e) => { setUserAddData({ ...userAddData, mobile: e.target.value }) } } prefix={ "+91" } className="form-control" id="exampleFormControlInput1" placeholder="Enter Mobile" />
 
+            <input autoComplete={ "off" } type={ "email" } value={ userAddData?.email } onChange={ (e) => { setUserAddData({ ...userAddData, email: e.target.value }) } } className="form-control" id="exampleFormControlInput1" placeholder="Enter Email" />
+
+            <input autoComplete={ "off" } type={ "password" } value={ userAddData?.password } onChange={ (e) => { setUserAddData({ ...userAddData, password: e.target.value }) } } className="form-control" id="exampleFormControlInput1" placeholder="********" />
           </div>
         </Modal.Body>
         <Modal.Footer>
 
-          <button type="button" onClick={ () => { handleEditRoleSubmit() } } className="btn btn-primary">Save</button>
+          <button type="button" onClick={ () => { handleUserCreateSubmit() } } className="btn btn-primary">Add</button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={ editUserBoxShow } centered onHide={ () => { setEditUserBoxShow(false) } }>
+        <Modal.Header closeButton>
+          <Modal.Title className="fw-bold">Edit User</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={ { padding: 2, display: 'flex', flexDirection: 'column', rowGap: 20 } }>
+            <div style={ { display: 'flex', columnGap: 5 } }>
+              <input required autoComplete={ "off" } type="text" value={ userEditData?.first_name } onChange={ (e) => { setUserEditData({ ...userEditData, first_name: e.target.value }) } } className="form-control" id="exampleFormControlInput1" placeholder="Enter First Name" />
+              <input autoComplete={ "off" } type="text" value={ userEditData?.last_name } onChange={ (e) => { setUserEditData({ ...userEditData, last_name: e.target.value }) } } className="form-control" id="exampleFormControlInput1" placeholder="Enter Last Name" />
+            </div>
+            <input maxLength={ 10 } autoComplete={ "off" } type="text" value={ userEditData?.mobile } onChange={ (e) => { setUserEditData({ ...userEditData, mobile: e.target.value }) } } prefix={ "+91" } className="form-control" id="exampleFormControlInput1" placeholder="Enter Mobile" />
+
+            <input autoComplete={ "off" } type={ "email" } value={ userEditData?.email } onChange={ (e) => { setUserEditData({ ...userEditData, email: e.target.value }) } } className="form-control" id="exampleFormControlInput1" placeholder="Enter Email" />
+
+            <input autoComplete={ "off" } type={ "password" } value={ userEditData?.password } onChange={ (e) => { setUserEditData({ ...userEditData, password: e.target.value }) } } className="form-control" id="exampleFormControlInput1" placeholder="********" />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+
+          <button type="button" onClick={ () => { handleUserEditSubmit() } } className="btn btn-primary">Save</button>
         </Modal.Footer>
       </Modal>
 

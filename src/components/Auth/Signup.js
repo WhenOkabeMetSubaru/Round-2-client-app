@@ -47,6 +47,10 @@ function Signup ()
                             <input name="last_name" type="text" className="form-control form-control-lg" placeholder="Parker" />
                         </div>
                     </div>
+                    <div className="mb-2">
+                        <label className="form-label">Mobile</label>
+                        <input maxLength={10} name="mobile" type="text" className="form-control form-control-lg" placeholder="Enter Mobile" />
+                    </div>
                     <div className="col-12">
                         <div className="mb-2">
                             <label className="form-label">Email address</label>

@@ -397,6 +397,10 @@ export const AuthorizedRoute = ({ children, roles, permission_check }) =>
     {
         for (let j = 0; j < roles?.length; j++)
         {
+            if(roles[j]?.permissions?.includes("complete_access")){
+                return <>{ children }</>
+            }
+
             if (roles[j]?.permissions?.includes(permission_check[i]))
             {
                 return <>{ children }</>
@@ -404,6 +408,7 @@ export const AuthorizedRoute = ({ children, roles, permission_check }) =>
         }
     }
 
+    
     // roles?.find((item) =>
     // {
     //     return item?.permissions?.includes('complete_access') || item?.permissions?.includes(permission_check)
