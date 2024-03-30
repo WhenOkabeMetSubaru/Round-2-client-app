@@ -13,6 +13,11 @@ function Signup ()
         event.preventDefault()
         const formData = new FormData(event.target);
         const formDetails = Object.fromEntries(formData);
+        if (formDetails.password !== formDetails?.confirm_password)
+        {
+           
+            return alert("Password do not match")
+        }
         delete formDetails.confirm_password;
 
         let response = await userSignup(formDetails);

@@ -19,7 +19,8 @@ function SignIn (){
         event.preventDefault()
         const formData = new FormData(event.target);
         const formDetails = Object.fromEntries(formData);
-        delete formDetails.confirm_password;
+        
+       
 
         let response = await userLogin(formDetails);
 
@@ -68,7 +69,7 @@ function SignIn (){
                                         <Link className="text-secondary" to="password-reset">Forgot Password?</Link>
                                     </span>
                                 </div>
-                                <input name="password" type="password" className="form-control form-control-lg" placeholder="***************" />
+                                <input  name="password" type="password" className="form-control form-control-lg" placeholder="***************" />
                             </div>
                         </div>
                         <div className="col-12">
