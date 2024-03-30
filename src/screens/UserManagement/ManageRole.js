@@ -48,14 +48,15 @@ const ManageRole = () =>
 
             if (res.status == false)
             {
-                alert(res.info);
-                getAllRolesByAdmin({ token: auth?.isAuthenticated() }).then((res) =>
+                
+                getAllRolesByAdmin({ token: auth?.isAuthenticated() }).then((resp) =>
                 {
-                    if (res.status == false)
+                    if (resp.status == false)
                     {
-                        setRoleDetails(res?.data)
+                        setRoleDetails(resp?.data)
                     }
                 })
+                alert(res.info);
 
             }
         }
