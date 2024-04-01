@@ -276,7 +276,7 @@ const ManageUser = () =>
                 })
               }
             </div>
-            <div style={ { height: 300, overflow: "hidden", display: 'flex', flexDirection: 'column', rowGap: 10, marginTop: 20, padding: 2 } }>
+            <div style={ { height: 300, overflow: "auto", display: 'flex', flexDirection: 'column', rowGap: 10, marginTop: 20, padding: 2 } }>
               {
                 roleDetails?.map((item) =>
                 {
@@ -442,7 +442,7 @@ export const RoleAssignComponent = ({ item, userRoleAssignBox, checkIfRoleAlread
 
 
   return (
-    <div key={ item?._id } onClick={ () => { assignState == true ? handleUpdateRoleAssign() : handleAddRoleAssign() } } style={ { display: 'flex', padding: '0px 10px 0px 10px', cursor: 'pointer', borderRadius: '5px', border: '1px solid lightgray', height: 40, justifyContent: 'space-between', alignItems: 'center' } }>
+    <div key={ item?._id } onClick={ () => { assignState == true ? handleUpdateRoleAssign() : handleAddRoleAssign() } } style={ { display: 'flex', padding: '0px 10px 0px 10px', cursor: 'pointer', borderRadius: '5px', border: '1px solid lightgray', height: 45,minHeight:35, justifyContent: 'space-between', alignItems: 'center' } }>
       <div style={ { fontWeight: 'bold' } }>
         { item?.name }
       </div>
